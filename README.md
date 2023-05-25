@@ -5,7 +5,7 @@ Why `Irwin`? Irwin is the kid who knew everything at school: https://youtu.be/Ca
 # Setup
 
 ## LLMs
-First, you need toget the opensource LLMs supported by Irwin:
+First, you need to get the opensource LLMs supported by Irwin:
 
 1. **GPT4All**: Easy, just download [here](https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin).
 1. **Llama.cpp**: This is a bit morew complicated.
@@ -13,7 +13,7 @@ First, you need toget the opensource LLMs supported by Irwin:
     1. Modify variable `MODEL_SIZE` in `llama.sh` to only include `7B` (otherwise it will take too long and you will need too much disk space)
     1. Run `llama.sh`
     1. Clone [Llama.cpp](https://github.com/ggerganov/llama.cpp) project
-    1. Copy the generated files by `llama-dl` into the `./models` directory and run the `make` command example for compiling 7B model, i.e.: `make -j && ./main -m ./models/7B/ggml-model-q4_0.bin -p "Building a website can be done in 10 simple steps:" -n 512`.
+    1. Follow steps in section [Prepare Data & Run](https://github.com/ggerganov/llama.cpp#prepare-data--run) of README.
 1. Make models available to Irwin project. Suggestion, create folder `models` in project's root and move there.
 
 ## Environment
