@@ -51,6 +51,12 @@ def refs_ingest(source_dirs):
     client.persist()
 
 
+def refs_get_retreiver():
+    logger.debug('Get reference retreiver')
+    client = __get_db_client()
+    return client.as_retriever()
+
+
 def __load_reference(ref_path: str) -> Document:
     _, file_ext = os.path.splitext(ref_path)
     if file_ext in REFERENCE_LOADERS:

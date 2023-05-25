@@ -1,38 +1,46 @@
 #!/usr/local/bin/python3
 
+import os
 import sys
 import argparse
 import logging.config
+from dotenv import load_dotenv
+from langchain.chains import RetrievalQA
 
-from db.references import refs_ingest, refs_clear
+from references import refs_ingest, refs_clear, refs_get_retreiver
+from llms import get_llm_wrapper
 
 logging.config.fileConfig('logging.conf')
-logger = logging.getLogger()
+logger = logging.getLogger('irwin')
 
+load_dotenv()
 
 def main(args=None):
-
     if args is None:
         args = sys.argv[1:]
 
     parsed_args = parse_args(args)
-    logger.info(f'parsed_args: {parsed_args}')
-    if 'prompt' in parsed_args and parsed_args.prompt:
-        do_prompt(parsed_args)
-
-    elif 'ask' in parsed_args and parsed_args.ask:
-        do_ask(parsed_args)
-    
-    elif 'refs' in parsed_args and parsed_args.refs:
+    if 'refs' in parsed_args and parsed_args.refs:
         do_refs(parsed_args)
 
+    elif 'ask' in parsed_args and parsed_args.ask:
+        do_ask(parsed_args.ask, parsed_args.llm)
+    
 
-def do_prompt(args):
-    logger.info(f'Prompt: {args}')
+def do_ask(ask, llm_name):
+    llm_name = llm_name if llm_name else 'GPT4All'
+    logger.info(f'Using {llm_name} Model')
+    return_source_documents = True
 
-
-def do_ask(args):
-    logger.info(f'Ask: {args}')
+    retriever = refs_get_retreiver()
+    llm = get_llm_wrapper(llm_name)
+    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=return_source_documents)
+    
+    print(f'\n\nAsking Irwin: {ask}...')
+    res = qa(ask)
+    refs = res['source_documents']
+    for document in refs:
+        print(f'\n\n>> {document.metadata["source"]}: \n{document.page_content}')
 
 
 def do_refs(args):
@@ -49,21 +57,15 @@ def do_refs(args):
 def parse_args(args):
     top_parser = argparse.ArgumentParser(description='Ask Irwin!')
 
+    top_parser.add_argument('-a', '--ask',
+                            action='store',
+                            help='Provide the question you want answered.')
+
+    top_parser.add_argument('--llm',
+                            action='store',
+                            help='Specify the name of the LLM to use. Options: GPT4All or LlamaCpp')
+
     sub_parser = top_parser.add_subparsers()
-
-    prompt_parser = sub_parser.add_parser('prompt',
-                                          description='Manage prompts to provide context.')
-    prompt_parser.set_defaults(prompt=True)
-    prompt_parser.add_argument('-a', '--add',
-                               action='store',
-                               help='Add a prompt')
-    prompt_parser.add_argument('-l', '--list',
-                               action='store_true',
-                               help='List queued prompts.')
-
-    ask_parser = sub_parser.add_parser('ask',
-                                       description='Ask question.')
-    ask_parser.set_defaults(ask=True)
 
     refs_parser = sub_parser.add_parser('refs',
                                         description='Manage DB of references.')

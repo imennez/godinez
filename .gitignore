@@ -162,3 +162,5 @@ cython_debug/
 # Extra
 .DS_Store
 data/
+models/
+logs/
