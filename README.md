@@ -34,17 +34,14 @@ Once you have your content, and accessible to `Irwin`, then run this command fro
 
 `./irwin.py refs -i data/references`
 
-# Ask a question
+# Prompt
 
-Now that you have the models ready and some reference documention, you can ask `Irwin` a question.
+Now that you have the models ready and some reference documention, you can interact with `Irwin` by providing text prompts.
 
-**Examples:**
+To enable the prompt console (by default, `Irwin` will use `GPT4All` model):
 
-By default, `Irwin` will use `GPT4All` model (faster performance)
-
-`./irwin.py -a "Does Appian provide RPA?"`
+`./irwin.py -p`
 
 If you want to explicitly use Llama.cpp, then pass flag `--llm` with the supported name:
 
-`./irwin.py -a "Does Appian provide RPA?" --llm LlamaCpp`
-
+`./irwin.py -p --llm LlamaCpp`

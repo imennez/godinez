@@ -23,11 +23,11 @@ def main(args=None):
     if 'refs' in parsed_args and parsed_args.refs:
         do_refs(parsed_args)
 
-    elif 'ask' in parsed_args and parsed_args.ask:
-        do_ask(parsed_args.ask, parsed_args.llm)
+    elif 'prompt' in parsed_args and parsed_args.prompt:
+        do_prompt(parsed_args.llm)
     
 
-def do_ask(ask, llm_name):
+def do_prompt(llm_name):
     llm_name = llm_name if llm_name else 'GPT4All'
     logger.info(f'Using {llm_name} Model')
     return_source_documents = True
@@ -36,11 +36,19 @@ def do_ask(ask, llm_name):
     llm = get_llm_wrapper(llm_name)
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever, return_source_documents=return_source_documents)
     
-    print(f'\n\nAsking Irwin: {ask}...')
-    res = qa(ask)
-    refs = res['source_documents']
-    for document in refs:
-        print(f'\n\n>> {document.metadata["source"]}: \n{document.page_content}')
+    print('\nInteract with Irwin by prompting something and get a response back. Type "quit" to exit.')
+    while True:
+        prompt = input("\nPROMPT: ")
+        if prompt in ('quit', 'exit', 'bye'):
+            print('Goodbye!')
+            break
+        
+        res = qa(prompt)
+        print('\n\nREFERENCES:\n--')
+        refs = res['source_documents']
+        for document in refs:
+            # print(f'\n\n>> {document.metadata["source"]}: \n{document.page_content}')
+            print(f'>> {document.metadata["source"]}')
 
 
 def do_refs(args):
@@ -55,15 +63,15 @@ def do_refs(args):
 
 
 def parse_args(args):
-    top_parser = argparse.ArgumentParser(description='Ask Irwin!')
+    top_parser = argparse.ArgumentParser(description='Interact with Irwin!')
 
-    top_parser.add_argument('-a', '--ask',
-                            action='store',
-                            help='Provide the question you want answered.')
+    top_parser.add_argument('-p', '--prompt',
+                            action='store_true',
+                            help='Enable prompt console, so you can interact with Irwin.')
 
     top_parser.add_argument('--llm',
                             action='store',
-                            help='Specify the name of the LLM to use. Options: GPT4All or LlamaCpp')
+                            help='Specify the name of the LLM to use. Options: GPT4All or LlamaCpp (Alpaca also supported)')
 
     sub_parser = top_parser.add_subparsers()
 
